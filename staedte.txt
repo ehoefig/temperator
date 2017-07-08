@@ -1,10 +1,10 @@
-Anchorage, USA, @61.1042028,-150.4939985,
-Berlin, Deutschland, @52.5072111,13.1459682,
-Moskau, Russland, @55.7494733,37.35232,
-Sidney, Australien, @-33.8470219,150.3715133,
-N’Djamena, Tschad, @12.1201831,14.9173724,
-La Paz, Bolivien, @-16.5207007,-72.5739368,
-Peking, China, @39.9385466,98.4677453,
-Denver, USA, @39.7642548,-113.8199617,
-Kabul, Afghanistan, @34.5533869,68.9175433,
-Novorybnaya, Russland, @72.824669,105.8218703,
+Anchorage, USA, -150.4939985,61.1042028
+Berlin, Deutschland, 13.1459682,52.5072111
+Moskau, Russland, 37.35232,55.7494733
+Sidney, Australien, 150.3715133,-33.8470219
+Alindao, Zentralafrikanische Republik, 5.039914,12.2464949
+La Paz, Bolivien, -72.5739368,-16.5207007
+Peking, China, 98.4677453,39.9385466
+Denver, USA, -113.8199617,39.7642548
+Kabul, Afghanistan, 68.9175433,34.5533869
+Tiksi, Russland, 93.0050991,70.6211055
