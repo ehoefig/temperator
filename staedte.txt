@@ -7,4 +7,4 @@ La Paz, Bolivien, -72.5739368,-16.5207007
 Peking, China, 98.4677453,39.9385466
 Denver, USA, -113.8199617,39.7642548
 Kabul, Afghanistan, 68.9175433,34.5533869
-Novorybnaya, Russland, 105.8218703,72.824669
+Tiksi, Russland, 93.0050991,70.6211055
