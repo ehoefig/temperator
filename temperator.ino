@@ -11,7 +11,9 @@ void setup() {
 
 void loop() {
   digitalWrite(led, HIGH);
-  delay(200);
+  Particle.publish("led", "on");
+  delay(3000);
   digitalWrite(led, LOW);
-  delay(200);
+  Particle.publish("led", "off");
+  delay(3000);
 }
