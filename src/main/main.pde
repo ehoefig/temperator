@@ -15,6 +15,7 @@
 CMD:
 tmp  zahl (-30..+60)
 led  zahl (0..9) 100 is off
+tim  4byte (hb, hl, mb, ml)
   
   
   To DO
@@ -24,6 +25,7 @@ led  zahl (0..9) 100 is off
  
 import java.util.Map;
 import processing.sound.*;
+import processing.serial.*;
 
 final static float tolerance = 5.0;  // Tolerance of a guess (number of +- degrees in Celsius)
 final static int numberOfTries = 3;
@@ -33,8 +35,10 @@ final static int maxSolutionCounter = 300; // How many frames to show solution f
 final static int minTemperature = -23;
 final static int maxTemperature = +50;
 final static int maxLocations = Place.class.getEnumConstants().length - 1;
-final static int ledOff = 100;
+final static byte ledOff = 100;
 final static int delayForServoMS = 25;
+
+Serial port;
 
 int tries = numberOfTries;
 
@@ -133,6 +137,12 @@ void keyPressed() {
 
 void setup() {
   size(1000, 800);
+  
+  // Serial
+  printArray(Serial.list());
+  // Open the port you are using at the rate you want:
+  port = new Serial(this, Serial.list()[0], 57600);
+  
   bg = loadImage("worldmap.png");
   font = loadFont("BiomeMeteoGroup-BoldNarrow-24.vlw");
   ledFont = loadFont("DSEG7Classic-Bold-48.vlw");
@@ -144,7 +154,7 @@ void setup() {
   fanfareSound.rate(0.5);
   textFont(font);
   lightLed(ledOff);
-  setTemperature(minTemperature);
+  setTemperature((byte)minTemperature);
   setTime(88,88);
 }
 
@@ -159,13 +169,20 @@ public int getTemperatureFromAPI(Place place) {
   return result;
 }
 
-public void lightLed(int ledNum) {
-  // TODO Talk to Arduino
+public void lightLed(byte ledNum) {
+ 
+  // Talk to Arduino
+  port.write("led");
+  port.write(str(ledNum));
 }
 
-public void setTemperature(int t) {
+public void setTemperature(byte t) {
   temperature = t;
-  // TODO talk to Arduino
+ 
+  // Talk to Arduino
+  port.write("tmp");
+  port.write(str(t));
+  
   delay(delayForServoMS);
 }
 
@@ -175,7 +192,12 @@ public void setTime(int hours, int minutes) {
   mb = (byte)(minutes / 10);
   ml = (byte)(minutes % 10);
   
-  // TODO Talk to Arduino
+  // Talk to Arduino
+  port.write("tim");
+  port.write(str(hb));
+  port.write(str(hl));
+  port.write(str(mb));
+  port.write(str(ml));
 }
 
 public void calculateRandomTime() {
@@ -210,7 +232,7 @@ public void step() {
         counterGoal = maxLocationCounter - 1;
         counterB = 1;
         counterLocation = floor(random(0, maxLocations));
-        lightLed(counterLocation);
+        lightLed((byte)counterLocation);
       }
     break;
     
@@ -229,14 +251,14 @@ public void step() {
           float delta = pow(counterB++, 2);
           counterGoal = maxLocationCounter - round(delta);
           if (++counterLocation == maxLocations) counterLocation = 0;
-          lightLed(counterLocation);
+          lightLed((byte)counterLocation);
         }
       }
     break;
     
   case GuessTheTemperature:
       counter += increment;
-      setTemperature(counter);
+      setTemperature((byte)counter);
       if (counter == minTemperature) increment = +1;
       else if (counter == maxTemperature) increment = -1;
       if (currentEvent == Event.ButtonPressed) {
@@ -259,7 +281,7 @@ public void step() {
       }
       currentState = State.ShowSolution;
       counter = 0;
-      setTemperature(temperatureFromAPI);
+      setTemperature((byte)temperatureFromAPI);
     break;
     
   case ShowSolution:
@@ -272,7 +294,7 @@ public void step() {
         }
         lightLed(ledOff);
         setTime(88,88);
-        setTemperature(minTemperature);
+        setTemperature((byte)minTemperature);
         println("tries " + tries);
         currentPlace = Place.None;
       }
