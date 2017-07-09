@@ -8,3 +8,19 @@ Peking, China, 98.4677453,39.9385466
 Denver, USA, -113.8199617,39.7642548
 Kabul, Afghanistan, 68.9175433,34.5533869
 Tiksi, Russland, 93.0050991,70.6211055
+
+
+-------
+
+
+LED index on wire!
+0, Anchorage
+1, Denver
+2, La Paz
+3, Alindao
+4, Berlin
+5, Moskau
+6, Tiksi
+7, Kabul
+8, Peking
+9, Sydney
