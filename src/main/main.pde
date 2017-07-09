@@ -80,7 +80,7 @@ enum Event {
 Event currentEvent = Event.None;
 
 enum Place {
-  Alindao, Anchorage, Berlin, Denver, Kabul, LaPaz, Moskau, Peking, Sidney, Tiksi, None
+  Anchorage, Berlin, Moskau, Sidney, Alindao, LaPaz, Peking, Denver, Kabul, Tiksi, None
 };
 
 Place currentPlace = Place.None;
