@@ -67,5 +67,6 @@ void loop() {
     if (isCityCommand(cmdMsg)) {
       showCity(getCommandVal(cmdMsg));
     }
-  } 
+  }
+  
 }
