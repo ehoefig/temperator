@@ -133,7 +133,7 @@ Map<Place,Coord> position = new HashMap() { {
 
 void keyPressed() {
   currentEvent = Event.ButtonPressed;
-}
+} //<>//
 
 void setup() {
   size(1000, 800);
@@ -141,7 +141,8 @@ void setup() {
   // Serial
   printArray(Serial.list());
   // Open the port you are using at the rate you want:
-  port = new Serial(this, Serial.list()[0], 57600);
+  port = new Serial(this, Serial.list()[3], 57600);
+  port.write("led1");
   
   bg = loadImage("worldmap.png");
   font = loadFont("BiomeMeteoGroup-BoldNarrow-24.vlw");
