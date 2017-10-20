@@ -1,13 +1,18 @@
 #include <Servo.h>
 #include <FastLED.h>
+#include <Wire.h>
+#include "Adafruit_LEDBackpack.h"
+
+Adafruit_7segment display = Adafruit_7segment();
 
 #define NUM_LEDS 10
 #define DATA_PIN 3
 #define SERVO_PIN 9
+#define CLOCK_OFF 9999
 
 struct CmdMessage {
   byte command[3];
-  byte value[3];
+  byte value[4];
 };
 
 CRGB leds[NUM_LEDS];
@@ -18,6 +23,7 @@ void setup() {
   tempServo.attach(SERVO_PIN);
   Serial.begin(57600); 
   FastLED.addLeds<WS2812, DATA_PIN, GRB>(leds, NUM_LEDS);
+  display.begin(0x70);
 }
 
 void showTemperature(float temperatureValue) {
@@ -32,7 +38,7 @@ void showTemperature(float temperatureValue) {
 
 int getCommandVal(CmdMessage cmdMsg) {
   String valStr = "";
-  for (int i=0; i<3; i++) {
+  for (int i=0; i<4; i++) {
     if (isDigit(cmdMsg.value[i]) || '-' == cmdMsg.value[i]) {
       valStr += (char)cmdMsg.value[i];
     }
@@ -51,12 +57,30 @@ void showCity(int index) {
   FastLED.show();
 }
 
+void showClock(int time) {
+  if (CLOCK_OFF == time) {
+    display.writeDigitRaw(0, 0);
+    display.writeDigitRaw(1, 0);
+    display.writeDigitRaw(2, 0);
+    display.writeDigitRaw(3, 0);
+    display.writeDigitRaw(4, 0);
+  } else {
+    display.print(time);
+    display.drawColon(true);
+  }
+  display.writeDisplay();
+}
+
 bool isTemperatureCommand(CmdMessage cmdMsg) {
   return 't' == cmdMsg.command[0] && 'm' == cmdMsg.command[1] && 'p' == cmdMsg.command[2];
 }
 
 bool isCityCommand(CmdMessage cmdMsg) {
   return 'l' == cmdMsg.command[0] && 'e' == cmdMsg.command[1] && 'd' == cmdMsg.command[2];
+}
+
+bool isClockCommand(CmdMessage cmdMsg) {
+  return 'c' == cmdMsg.command[0] && 'l' == cmdMsg.command[1] && 'k' == cmdMsg.command[2];
 }
 
 void loop() {
@@ -69,6 +93,9 @@ void loop() {
     }
     if (isCityCommand(cmdMsg)) {
       showCity(getCommandVal(cmdMsg));
+    }
+    if (isClockCommand(cmdMsg)) {
+      showClock(getCommandVal(cmdMsg));
     }
   }
   
