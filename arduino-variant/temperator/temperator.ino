@@ -51,7 +51,7 @@ void showCity(int index) {
   for (int i=0; i<NUM_LEDS; i++) {
     leds[i] = CRGB::Black;  
   }
-  if (index > 0 && index < NUM_LEDS) {
+  if (index >= 0 && index < NUM_LEDS) {
     leds[index] = CRGB::Red;
   }
   FastLED.show();

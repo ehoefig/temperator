@@ -24,7 +24,7 @@ tim  4byte (hb, hl, mb, ml)
  */
  
 import java.util.Map;
-import processing.sound.*;
+//import processing.sound.*;
 import processing.serial.*;
 
 final static float tolerance = 5.0;  // Tolerance of a guess (number of +- degrees in Celsius)
@@ -46,7 +46,7 @@ PImage bg;  // world map
 PFont font;
 PFont ledFont;
 
-SoundFile clickSound, fanfareSound, honkSound, cheerSound, whooshSound;
+//SoundFile clickSound, fanfareSound, honkSound, cheerSound, whooshSound;
 
 // LED Time
 byte hb = 8;
@@ -80,7 +80,18 @@ enum Event {
 Event currentEvent = Event.None;
 
 enum Place {
-  Anchorage, Berlin, Moskau, Sidney, Alindao, LaPaz, Peking, Denver, Kabul, Tiksi, None
+  
+  Anchorage,  //0000
+  Denver,  //0001
+  LaPaz,  //0002
+  Alindao,  //0003
+  Berlin,  //0004
+  Moskau,  //0005
+  Tiksi,  //0006
+  Kabul,  //0007
+  Peking,  //0008
+  Sidney,  //0009
+  None
 };
 
 Place currentPlace = Place.None;
@@ -141,18 +152,18 @@ void setup() {
   // Serial
   printArray(Serial.list());
   // Open the port you are using at the rate you want:
-  port = new Serial(this, Serial.list()[3], 57600);
+  port = new Serial(this, Serial.list()[0], 57600);
   port.write("led1");
   
   bg = loadImage("worldmap.png");
   font = loadFont("BiomeMeteoGroup-BoldNarrow-24.vlw");
   ledFont = loadFont("DSEG7Classic-Bold-48.vlw");
-  clickSound = new SoundFile(this, "Click2-Sebastian-759472264.wav");
-  fanfareSound = new SoundFile(this, "castle_horn.mp3");
-  honkSound = new SoundFile(this, "honk.mp3");
-  cheerSound = new SoundFile(this, "cheer.mp3");
-  whooshSound = new SoundFile(this, "whoosh.mp3");
-  fanfareSound.rate(0.5);
+  //clickSound = new SoundFile(this, "Click2-Sebastian-759472264.wav");
+  //fanfareSound = new SoundFile(this, "castle_horn.mp3");
+  //honkSound = new SoundFile(this, "honk.mp3");
+  //cheerSound = new SoundFile(this, "cheer.mp3");
+  //whooshSound = new SoundFile(this, "whoosh.mp3");
+  //fanfareSound.rate(0.5);
   textFont(font);
   lightLed(ledOff);
   setTemperature((byte)minTemperature);
@@ -174,7 +185,7 @@ public void lightLed(byte ledNum) {
  
   // Talk to Arduino
   port.write("led");
-  port.write(str(ledNum));
+  port.write(String.format("%4d", ledNum));
 }
 
 public void setTemperature(byte t) {
@@ -182,7 +193,7 @@ public void setTemperature(byte t) {
  
   // Talk to Arduino
   port.write("tmp");
-  port.write(str(t));
+  port.write(String.format("%4d",t));
   
   delay(delayForServoMS);
 }
@@ -194,11 +205,9 @@ public void setTime(int hours, int minutes) {
   ml = (byte)(minutes % 10);
   
   // Talk to Arduino
-  port.write("tim");
-  port.write(str(hb));
-  port.write(str(hl));
-  port.write(str(mb));
-  port.write(str(ml));
+  port.write("clk");
+  port.write(String.format("%2d", hours));
+  port.write(String.format("%2d", minutes));
 }
 
 public void calculateRandomTime() {
@@ -218,7 +227,7 @@ public void step() {
     break;
     
   case PlayIntro:
-    fanfareSound.play();
+    //fanfareSound.play();
     delay(5500);
     currentState = State.TimeSelection;
     counter = maxTimeCounter;
@@ -247,11 +256,11 @@ public void step() {
       } else {
         if (counter <= counterGoal) {
           // "Wheel ticks to next place"
-          clickSound.play();
-          currentPlace = Place.class.getEnumConstants()[counterLocation];
+          //clickSound.play();
           float delta = pow(counterB++, 2);
           counterGoal = maxLocationCounter - round(delta);
           if (++counterLocation == maxLocations) counterLocation = 0;
+          currentPlace = Place.class.getEnumConstants()[counterLocation];
           lightLed((byte)counterLocation);
         }
       }
@@ -273,11 +282,11 @@ public void step() {
       delay(500);
       if (abs(temperatureFromAPI - temperature) < tolerance) {
         // Success!
-        cheerSound.play();
+        //cheerSound.play();
         delay(2000);
       } else {
         // Failure!
-        honkSound.play();
+        //honkSound.play();
         delay(1000);
       }
       currentState = State.ShowSolution;
@@ -302,7 +311,7 @@ public void step() {
     break;
     
   case PlayOutro:
-      whooshSound.play();
+      //whooshSound.play();
       delay(3000);
       currentState = State.Idle;
     break;
@@ -332,7 +341,7 @@ void drawPlaces(Place current) {
   
   for (Place place: Place.values()) {
     Pair position = location.get(place);
-    if (place.equals(current)) fill(#3377FF, 255);
+    if (place == current) fill(#3377FF, 255);
     else fill(#0000FF, 0);
     ellipse(position.x, position.y, 15, 15);
   }
@@ -357,7 +366,7 @@ void draw() {
   background(bg);
   drawTime();
   drawTemperature();
-  
+    
   drawPlaces(currentPlace);
   
 }
