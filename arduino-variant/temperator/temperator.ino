@@ -2,7 +2,8 @@
 #include <FastLED.h>
 
 #define NUM_LEDS 10
-#define DATA_PIN 6
+#define DATA_PIN 3
+#define SERVO_PIN 9
 
 struct CmdMessage {
   byte command[3];
@@ -14,9 +15,9 @@ Servo tempServo;
 int pos = 0;    // variable to store the servo position
 
 void setup() {
-  tempServo.attach(9);  // attaches the servo on pin 9 to the servo object
+  tempServo.attach(SERVO_PIN);
   Serial.begin(57600); 
-  LEDS.addLeds<WS2811,DATA_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.addLeds<WS2812, DATA_PIN, GRB>(leds, NUM_LEDS);
 }
 
 void showTemperature(float temperatureValue) {
@@ -40,16 +41,18 @@ int getCommandVal(CmdMessage cmdMsg) {
   return val;
 }
 
-bool isTemperatureCommand(CmdMessage cmdMsg) {
-  return 't' == cmdMsg.command[0] && 'm' == cmdMsg.command[1] && 'p' == cmdMsg.command[2];
-}
-
 void showCity(int index) {
   for (int i=0; i<NUM_LEDS; i++) {
     leds[i] = CRGB::Black;  
   }
-  leds[index] = CRGB::Red;
-  FastLED.show();  
+  if (index > 0 && index < NUM_LEDS) {
+    leds[index] = CRGB::Red;
+  }
+  FastLED.show();
+}
+
+bool isTemperatureCommand(CmdMessage cmdMsg) {
+  return 't' == cmdMsg.command[0] && 'm' == cmdMsg.command[1] && 'p' == cmdMsg.command[2];
 }
 
 bool isCityCommand(CmdMessage cmdMsg) {
@@ -59,7 +62,7 @@ bool isCityCommand(CmdMessage cmdMsg) {
 void loop() {
   if (Serial.available() > 0) {
     CmdMessage cmdMsg;
-    memset((void*)&cmdMsg, 0, sizeof(cmdMsg)); 
+    memset((void*)&cmdMsg, 0, sizeof(cmdMsg));
     Serial.readBytes((uint8_t*)&cmdMsg, sizeof(cmdMsg));
     if (isTemperatureCommand(cmdMsg)) {
       showTemperature(getCommandVal(cmdMsg));
