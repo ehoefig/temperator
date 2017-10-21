@@ -18,8 +18,8 @@ class WeatherApiClient {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    this.client_id = p.getProperty("client_id", NO_ID );
-    this.client_secret = p.getProperty("client_id", NO_SECRET);
+    this.client_id = p.getProperty("weatherapi.client_id", NO_ID );
+    this.client_secret = p.getProperty("weatherapi.client_secret", NO_SECRET); //<>//
   }
    
   public float getYesterdaysTemperature(Place place, int hour, int minute) throws IOException {
