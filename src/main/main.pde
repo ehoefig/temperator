@@ -6,26 +6,26 @@
  */
  
  
- /*
- struct CmdMessage {
-  byte command[3];
-  byte value[3];
-};
 
-CMD:
-tmp  zahl (-30..+60)
-led  zahl (0..9) 100 is off
-tim  4byte (hb, hl, mb, ml)
-  
-  
-  To DO
-  get temperature from API
-  
- */
  
 import java.util.Map;
 //import processing.sound.*;
 import processing.serial.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.net.URLEncoder;
 
 final static float tolerance = 5.0;  // Tolerance of a guess (number of +- degrees in Celsius)
 final static int numberOfTries = 3;
@@ -37,8 +37,6 @@ final static int maxTemperature = +50;
 final static int maxLocations = Place.class.getEnumConstants().length - 1;
 final static byte ledOff = 100;
 final static int delayForServoMS = 25;
-
-Serial port;
 
 int tries = numberOfTries;
 
@@ -66,6 +64,9 @@ int increment = +1;  // decides upon direction of temperature pointer
 int hours = 88;
 int minutes = 88;
 
+final WeatherApiClient weatherApiClient = new WeatherApiClient();
+ArduinoController arduino;
+
 enum State {
   Idle, PlayIntro, TimeSelection, LocationSelection, GuessTheTemperature, GuessGiven, ShowSolution, PlayOutro
 }
@@ -80,70 +81,79 @@ enum Event {
 Event currentEvent = Event.None;
 
 enum Place {
-  
+  /* Name     index on wire */
   Anchorage,  //0000
-  Denver,  //0001
-  LaPaz,  //0002
-  Alindao,  //0003
-  Berlin,  //0004
-  Moskau,  //0005
-  Tiksi,  //0006
-  Kabul,  //0007
-  Peking,  //0008
-  Sidney,  //0009
+  Denver,     //0001
+  LaPaz,      //0002
+  Alindao,    //0003
+  Berlin,     //0004
+  Moskau,     //0005
+  Tiksi,      //0006
+  Kabul,      //0007
+  Peking,     //0008
+  Sidney,     //0009
   None
 };
 
-Place currentPlace = Place.None;
-
-class Pair {
+class ScreenLocation {
   int x, y;
-  public Pair(int x, int y) {
+  public ScreenLocation(int x, int y) {
     this.x = x; 
     this.y = y;
   }
 }
 
-class Coord {
-  float longitude, latitude;
-  public Coord(float lon, float lat) {
-    this.longitude = lon; 
-    this.latitude = lat;
-  }
-}
+Place currentPlace = Place.None;
 
-Map<Place,Pair> location = new HashMap() { {
-    this.put(Place.Anchorage, new Pair(142,356));
-    this.put(Place.Berlin, new Pair(529,433));
-    this.put(Place.Moskau, new Pair(586,415));
-    this.put(Place.Sidney, new Pair(904,705));
-    this.put(Place.Alindao, new Pair(556,575));
-    this.put(Place.LaPaz, new Pair(323,642));
-    this.put(Place.Peking, new Pair(809,469));
-    this.put(Place.Denver, new Pair(226,468));
-    this.put(Place.Kabul, new Pair(678,493));
-    this.put(Place.Tiksi, new Pair(763,304));
-    this.put(Place.None, new Pair(-100,-100));
+Map<Place,ScreenLocation> screenLocationMapping = new HashMap() { {
+    this.put(Place.Anchorage, new ScreenLocation(142,356));
+    this.put(Place.Berlin, new ScreenLocation(529,433));
+    this.put(Place.Moskau, new ScreenLocation(586,415));
+    this.put(Place.Sidney, new ScreenLocation(904,705));
+    this.put(Place.Alindao, new ScreenLocation(556,575));
+    this.put(Place.LaPaz, new ScreenLocation(323,642));
+    this.put(Place.Peking, new ScreenLocation(809,469));
+    this.put(Place.Denver, new ScreenLocation(226,468));
+    this.put(Place.Kabul, new ScreenLocation(678,493));
+    this.put(Place.Tiksi, new ScreenLocation(763,304));
+    this.put(Place.None, new ScreenLocation(-100,-100));
   }
 };
 
-Map<Place,Coord> position = new HashMap() { {
-    this.put(Place.Anchorage, new Coord(-150.4939985,61.1042028));
-    this.put(Place.Berlin, new Coord(13.1459682,52.5072111));
-    this.put(Place.Moskau, new Coord(37.35232,55.7494733));
-    this.put(Place.Sidney, new Coord(150.3715133,-33.8470219));
-    this.put(Place.Alindao, new Coord(5.039914,12.2464949));
-    this.put(Place.LaPaz, new Coord(-72.5739368,-16.5207007));
-    this.put(Place.Peking, new Coord(98.4677453,39.9385466));
-    this.put(Place.Denver, new Coord(-113.8199617,39.7642548));
-    this.put(Place.Kabul, new Coord(68.9175433,34.5533869));
-    this.put(Place.Tiksi, new Coord(93.0050991,70.6211055));
-    this.put(Place.None, new Coord(0,0));
+Map<Place, GeoLocation> geoLocationMapping = new HashMap() { {
+    this.put(Place.Anchorage, new GeoLocation(-150.4939985,61.1042028));
+    this.put(Place.Berlin, new GeoLocation(13.1459682,52.5072111));
+    this.put(Place.Moskau, new GeoLocation(37.35232,55.7494733));
+    this.put(Place.Sidney, new GeoLocation(150.3715133,-33.8470219));
+    this.put(Place.Alindao, new GeoLocation(5.039914,12.2464949));
+    this.put(Place.LaPaz, new GeoLocation(-72.5739368,-16.5207007));
+    this.put(Place.Peking, new GeoLocation(98.4677453,39.9385466));
+    this.put(Place.Denver, new GeoLocation(-113.8199617,39.7642548));
+    this.put(Place.Kabul, new GeoLocation(68.9175433,34.5533869));
+    this.put(Place.Tiksi, new GeoLocation(93.0050991,70.6211055));
+    this.put(Place.None, new GeoLocation(0,0));
   }
 };
+
+Map<Place, ZoneId> timezoneMapping = new HashMap() { {
+    this.put(Place.Anchorage, ZoneId.of("America/Anchorage"));
+    this.put(Place.Berlin, ZoneId.of("Europe/Berlin"));
+    this.put(Place.Moskau, ZoneId.of("Europe/Moscow"));
+    this.put(Place.Sidney, ZoneId.of("Australia/Sydney"));
+    this.put(Place.Alindao, ZoneId.of("Africa/Bangui"));
+    this.put(Place.LaPaz, ZoneId.of("America/La_Paz"));
+    this.put(Place.Peking, ZoneId.of("Asia/Shanghai"));
+    this.put(Place.Denver, ZoneId.of("America/Denver"));
+    this.put(Place.Kabul, ZoneId.of("Asia/Kabul"));
+    this.put(Place.Tiksi, ZoneId.of("Asia/Yakutsk"));
+    this.put(Place.None, ZoneId.of("GMT"));
+  }
+};
+
+
 
 void keyPressed() {
-  currentEvent = Event.ButtonPressed;
+  currentEvent = Event.ButtonPressed; //<>//
 } //<>//
 
 void setup() {
@@ -152,8 +162,9 @@ void setup() {
   // Serial
   printArray(Serial.list());
   // Open the port you are using at the rate you want:
-  port = new Serial(this, Serial.list()[0], 57600);
+  Serial port = new Serial(this, Serial.list()[0], 57600);
   port.write("led1");
+  arduino = new ArduinoController(port);
   
   bg = loadImage("worldmap.png");
   font = loadFont("BiomeMeteoGroup-BoldNarrow-24.vlw");
@@ -165,49 +176,20 @@ void setup() {
   //whooshSound = new SoundFile(this, "whoosh.mp3");
   //fanfareSound.rate(0.5);
   textFont(font);
-  lightLed(ledOff);
-  setTemperature((byte)minTemperature);
-  setTime(88,88);
+  arduino.lightLed(ledOff);
+  arduino.setTemperature((byte)minTemperature);
+  arduino.setTime(88,88);
+  weatherApiClient.setup();
 }
 
 public int getTemperatureFromAPI(Place place) {
-  
   if (place == Place.None) return 0;
-  
-  // TODO: Ask API
-  Coord pos = position.get(place);
-  int result = 23;
-  
-  return result;
-}
-
-public void lightLed(byte ledNum) {
- 
-  // Talk to Arduino
-  port.write("led");
-  port.write(String.format("%4d", ledNum));
-}
-
-public void setTemperature(byte t) {
-  temperature = t;
- 
-  // Talk to Arduino
-  port.write("tmp");
-  port.write(String.format("%4d",t));
-  
-  delay(delayForServoMS);
-}
-
-public void setTime(int hours, int minutes) {
-  hb = (byte)(hours / 10);
-  hl = (byte)(hours % 10);
-  mb = (byte)(minutes / 10);
-  ml = (byte)(minutes % 10);
-  
-  // Talk to Arduino
-  port.write("clk");
-  port.write(String.format("%2d", hours));
-  port.write(String.format("%2d", minutes));
+  try {
+    float temperature = weatherApiClient.getYesterdaysTemperature(place,hours, minutes);
+    return round(temperature);
+  } catch (IOException e) {
+    throw new RuntimeException(e);
+  }
 }
 
 public void calculateRandomTime() {
@@ -235,14 +217,14 @@ public void step() {
     
   case TimeSelection:
       calculateRandomTime();
-      setTime(hours, minutes);
+      arduino.setTime(hours, minutes);
       if (currentEvent == Event.ButtonPressed) {
         currentState = State.LocationSelection;
         counter = maxLocationCounter;
         counterGoal = maxLocationCounter - 1;
         counterB = 1;
         counterLocation = floor(random(0, maxLocations));
-        lightLed((byte)counterLocation);
+        arduino.lightLed((byte)counterLocation);
       }
     break;
     
@@ -261,14 +243,14 @@ public void step() {
           counterGoal = maxLocationCounter - round(delta);
           if (++counterLocation == maxLocations) counterLocation = 0;
           currentPlace = Place.class.getEnumConstants()[counterLocation];
-          lightLed((byte)counterLocation);
+          arduino.lightLed((byte)counterLocation);
         }
       }
     break;
     
   case GuessTheTemperature:
       counter += increment;
-      setTemperature((byte)counter);
+      arduino.setTemperature((byte)counter);
       if (counter == minTemperature) increment = +1;
       else if (counter == maxTemperature) increment = -1;
       if (currentEvent == Event.ButtonPressed) {
@@ -291,7 +273,7 @@ public void step() {
       }
       currentState = State.ShowSolution;
       counter = 0;
-      setTemperature((byte)temperatureFromAPI);
+      arduino.setTemperature((byte)temperatureFromAPI);
     break;
     
   case ShowSolution:
@@ -302,9 +284,9 @@ public void step() {
           --tries;
           currentState = State.TimeSelection;
         }
-        lightLed(ledOff);
-        setTime(88,88);
-        setTemperature((byte)minTemperature);
+        arduino.lightLed(ledOff);
+        arduino.setTime(88,88);
+        arduino.setTemperature((byte)minTemperature);
         println("tries " + tries);
         currentPlace = Place.None;
       }
@@ -340,7 +322,7 @@ void drawPlaces(Place current) {
   ellipseMode(CENTER);
   
   for (Place place: Place.values()) {
-    Pair position = location.get(place);
+    ScreenLocation position = screenLocationMapping.get(place);
     if (place == current) fill(#3377FF, 255);
     else fill(#0000FF, 0);
     ellipse(position.x, position.y, 15, 15);
