@@ -1,5 +1,5 @@
 /**
- * Beuth & MeteoGroup Hackathon '17 entry by Martin & Ed
+ * Beuth & MeteoGroup Hackathon '17 / '18 entry by Martin & Ed
  *
  * Attribution:
  * Click2-Sebastian-759472264.wav by Sebastian
@@ -9,7 +9,7 @@
 
  
 import java.util.Map;
-//import processing.sound.*;
+import processing.sound.*;
 import processing.serial.*;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,7 +44,7 @@ PImage bg;  // world map
 PFont font;
 PFont ledFont;
 
-//SoundFile clickSound, fanfareSound, honkSound, cheerSound, whooshSound;
+SoundFile clickSound, fanfareSound, honkSound, cheerSound, whooshSound;
 
 // LED Time
 byte hb = 8;
@@ -169,12 +169,12 @@ void setup() {
   bg = loadImage("worldmap.png");
   font = loadFont("BiomeMeteoGroup-BoldNarrow-24.vlw");
   ledFont = loadFont("DSEG7Classic-Bold-48.vlw");
-  //clickSound = new SoundFile(this, "Click2-Sebastian-759472264.wav");
-  //fanfareSound = new SoundFile(this, "castle_horn.mp3");
-  //honkSound = new SoundFile(this, "honk.mp3");
-  //cheerSound = new SoundFile(this, "cheer.mp3");
-  //whooshSound = new SoundFile(this, "whoosh.mp3");
-  //fanfareSound.rate(0.5);
+  clickSound = new SoundFile(this, "Click2-Sebastian-759472264.wav");
+  fanfareSound = new SoundFile(this, "castle_horn.mp3");
+  honkSound = new SoundFile(this, "honk.mp3");
+  cheerSound = new SoundFile(this, "cheer.mp3");
+  whooshSound = new SoundFile(this, "whoosh.mp3");
+  fanfareSound.rate(0.5);
   textFont(font);
   arduino.lightLed(ledOff);
   arduino.setTemperature((byte)minTemperature);
@@ -209,7 +209,7 @@ public void step() {
     break;
     
   case PlayIntro:
-    //fanfareSound.play();
+    fanfareSound.play();
     delay(5500);
     currentState = State.TimeSelection;
     counter = maxTimeCounter;
@@ -238,7 +238,7 @@ public void step() {
       } else {
         if (counter <= counterGoal) {
           // "Wheel ticks to next place"
-          //clickSound.play();
+          clickSound.play();
           float delta = pow(counterB++, 2);
           counterGoal = maxLocationCounter - round(delta);
           if (++counterLocation == maxLocations) counterLocation = 0;
@@ -264,11 +264,11 @@ public void step() {
       delay(500);
       if (abs(temperatureFromAPI - temperature) < tolerance) {
         // Success!
-        //cheerSound.play();
+        cheerSound.play();
         delay(2000);
       } else {
         // Failure!
-        //honkSound.play();
+        honkSound.play();
         delay(1000);
       }
       currentState = State.ShowSolution;
@@ -293,7 +293,7 @@ public void step() {
     break;
     
   case PlayOutro:
-      //whooshSound.play();
+      whooshSound.play();
       delay(3000);
       currentState = State.Idle;
     break;

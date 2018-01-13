@@ -19,11 +19,23 @@ CRGB leds[NUM_LEDS];
 Servo tempServo;
 int pos = 0;    // variable to store the servo position
 
+// All lights on (for testing)
+void lightUp() {
+  display.print(8888);
+  display.drawColon(true);
+  for (int i=0; i<NUM_LEDS; ++i) 
+    leds[i] = CRGB::White;
+  FastLED.show();
+}
+
 void setup() {
   tempServo.attach(SERVO_PIN);
   Serial.begin(57600); 
   FastLED.addLeds<WS2812, DATA_PIN, GRB>(leds, NUM_LEDS);
   display.begin(0x70);
+
+  // TODO: remove
+  lightUp();
 }
 
 void showTemperature(float temperatureValue) {
