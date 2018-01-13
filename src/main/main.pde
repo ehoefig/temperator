@@ -91,7 +91,7 @@ enum Place {
   Tiksi,      //0006
   Kabul,      //0007
   Peking,     //0008
-  Sidney,     //0009
+  Sydney,     //0009
   None
 };
 
@@ -109,7 +109,7 @@ Map<Place,ScreenLocation> screenLocationMapping = new HashMap() { {
     this.put(Place.Anchorage, new ScreenLocation(142,356));
     this.put(Place.Berlin, new ScreenLocation(529,433));
     this.put(Place.Moskau, new ScreenLocation(586,415));
-    this.put(Place.Sidney, new ScreenLocation(904,705));
+    this.put(Place.Sydney, new ScreenLocation(904,705));
     this.put(Place.Alindao, new ScreenLocation(556,575));
     this.put(Place.LaPaz, new ScreenLocation(323,642));
     this.put(Place.Peking, new ScreenLocation(809,469));
@@ -124,13 +124,13 @@ Map<Place, GeoLocation> geoLocationMapping = new HashMap() { {
     this.put(Place.Anchorage, new GeoLocation(-150.4939985,61.1042028));
     this.put(Place.Berlin, new GeoLocation(13.1459682,52.5072111));
     this.put(Place.Moskau, new GeoLocation(37.35232,55.7494733));
-    this.put(Place.Sidney, new GeoLocation(150.3715133,-33.8470219));
-    this.put(Place.Alindao, new GeoLocation(5.039914,12.2464949));
-    this.put(Place.LaPaz, new GeoLocation(-72.5739368,-16.5207007));
-    this.put(Place.Peking, new GeoLocation(98.4677453,39.9385466));
-    this.put(Place.Denver, new GeoLocation(-113.8199617,39.7642548));
-    this.put(Place.Kabul, new GeoLocation(68.9175433,34.5533869));
-    this.put(Place.Tiksi, new GeoLocation(93.0050991,70.6211055));
+    this.put(Place.Sydney, new GeoLocation(151.209444, -33.865));
+    this.put(Place.Alindao, new GeoLocation(5.039914, 12.2464949));
+    this.put(Place.LaPaz, new GeoLocation(-68.1475, -16.494167));
+    this.put(Place.Peking, new GeoLocation(98.4677453, 39.9385466));
+    this.put(Place.Denver, new GeoLocation(-104.9825, 39.778889));
+    this.put(Place.Kabul, new GeoLocation(69.166667, 34.533333));
+    this.put(Place.Tiksi, new GeoLocation(93.0050991, 70.6211055));
     this.put(Place.None, new GeoLocation(0,0));
   }
 };
@@ -139,7 +139,7 @@ Map<Place, ZoneId> timezoneMapping = new HashMap() { {
     this.put(Place.Anchorage, ZoneId.of("America/Anchorage"));
     this.put(Place.Berlin, ZoneId.of("Europe/Berlin"));
     this.put(Place.Moskau, ZoneId.of("Europe/Moscow"));
-    this.put(Place.Sidney, ZoneId.of("Australia/Sydney"));
+    this.put(Place.Sydney, ZoneId.of("Australia/Sydney"));
     this.put(Place.Alindao, ZoneId.of("Africa/Bangui"));
     this.put(Place.LaPaz, ZoneId.of("America/La_Paz"));
     this.put(Place.Peking, ZoneId.of("Asia/Shanghai"));
