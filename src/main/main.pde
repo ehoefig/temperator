@@ -121,9 +121,9 @@ Map<Place,ScreenLocation> screenLocationMapping = new HashMap() { {
 };
 
 Map<Place, GeoLocation> geoLocationMapping = new HashMap() { {
-    this.put(Place.Anchorage, new GeoLocation(-150.4939985,61.1042028));
-    this.put(Place.Berlin, new GeoLocation(13.1459682,52.5072111));
-    this.put(Place.Moskau, new GeoLocation(37.35232,55.7494733));
+    this.put(Place.Anchorage, new GeoLocation(-149.9,61.216667));
+    this.put(Place.Berlin, new GeoLocation(13.3569682,52.507211));
+    this.put(Place.Moskau, new GeoLocation(37.62232,55.7494733));
     this.put(Place.Sidney, new GeoLocation(150.3715133,-33.8470219));
     this.put(Place.Alindao, new GeoLocation(21.216667,5.033333));
     this.put(Place.LaPaz, new GeoLocation(-72.5739368,-16.5207007));
