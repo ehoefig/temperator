@@ -36,6 +36,7 @@ class WeatherApiClient {
         geoLocationMapping.get(place).latitude,
         observedFrom,
         observedUntil);
+    //println(urlString);
     return Float.parseFloat(get(urlString));
   }
 
@@ -94,7 +95,8 @@ class WeatherApiClient {
   }
 
   private String extractAirTemperature(String response) {
-    Pattern pattern = Pattern.compile("airTemperatureInCelsius\":(\\d+.\\d+)");
+    //println(response);
+    Pattern pattern = Pattern.compile("airTemperatureInCelsius\":(-?\\d+.\\d+)");
     Matcher matcher = pattern.matcher(response);
     if (!matcher.find()) {
       throw new IllegalStateException("No airTemperatureInCelsius found in response: " + response);

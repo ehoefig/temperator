@@ -23,9 +23,12 @@ int pos = 0;    // variable to store the servo position
 void lightUp() {
   display.print(8888);
   display.drawColon(true);
+  display.writeDisplay();
+  
   for (int i=0; i<NUM_LEDS; ++i) 
-    leds[i] = CRGB::White;
+    leds[i] = CRGB::Green;
   FastLED.show();
+  
 }
 
 void setup() {
