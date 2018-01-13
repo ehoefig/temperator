@@ -125,12 +125,12 @@ Map<Place, GeoLocation> geoLocationMapping = new HashMap() { {
     this.put(Place.Berlin, new GeoLocation(13.1459682,52.5072111));
     this.put(Place.Moskau, new GeoLocation(37.35232,55.7494733));
     this.put(Place.Sidney, new GeoLocation(150.3715133,-33.8470219));
-    this.put(Place.Alindao, new GeoLocation(5.039914,12.2464949));
+    this.put(Place.Alindao, new GeoLocation(21.216667,5.033333));
     this.put(Place.LaPaz, new GeoLocation(-72.5739368,-16.5207007));
-    this.put(Place.Peking, new GeoLocation(98.4677453,39.9385466));
+    this.put(Place.Peking, new GeoLocation(116.383333,39.933333));
     this.put(Place.Denver, new GeoLocation(-113.8199617,39.7642548));
     this.put(Place.Kabul, new GeoLocation(68.9175433,34.5533869));
-    this.put(Place.Tiksi, new GeoLocation(93.0050991,70.6211055));
+    this.put(Place.Tiksi, new GeoLocation(128.864833,71.637444));
     this.put(Place.None, new GeoLocation(0,0));
   }
 };
@@ -162,7 +162,7 @@ void setup() {
   // Serial
   printArray(Serial.list());
   // Open the port you are using at the rate you want:
-  Serial port = new Serial(this, Serial.list()[0], 57600);
+  Serial port = new Serial(this, Serial.list()[1], 57600);
   port.write("led1");
   arduino = new ArduinoController(port);
   
