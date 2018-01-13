@@ -28,7 +28,6 @@ void lightUp() {
   for (int i=0; i<NUM_LEDS; ++i) 
     leds[i] = CRGB::Green;
   FastLED.show();
-  
 }
 
 void setup() {
@@ -38,7 +37,7 @@ void setup() {
   display.begin(0x70);
 
   // TODO: remove
-  lightUp();
+  //lightUp();
 }
 
 void showTemperature(float temperatureValue) {
@@ -80,7 +79,10 @@ void showClock(int time) {
     display.writeDigitRaw(3, 0);
     display.writeDigitRaw(4, 0);
   } else {
-    display.print(time);
+    display.writeDigitNum(0, (time / 1000) % 10);
+    display.writeDigitNum(1, (time / 100) % 10);
+    display.writeDigitNum(3, (time / 10) % 10);
+    display.writeDigitNum(4, time % 10);
     display.drawColon(true);
   }
   display.writeDisplay();
