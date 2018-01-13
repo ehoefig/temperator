@@ -121,16 +121,16 @@ Map<Place,ScreenLocation> screenLocationMapping = new HashMap() { {
 };
 
 Map<Place, GeoLocation> geoLocationMapping = new HashMap() { {
-    this.put(Place.Anchorage, new GeoLocation(-150.4939985,61.1042028));
-    this.put(Place.Berlin, new GeoLocation(13.1459682,52.5072111));
-    this.put(Place.Moskau, new GeoLocation(37.35232,55.7494733));
+    this.put(Place.Anchorage, new GeoLocation(-149.9, 61.216667));
+    this.put(Place.Berlin, new GeoLocation(13.3569682, 52.507211));
+    this.put(Place.Moskau, new GeoLocation(37.62232, 55.7494733));
     this.put(Place.Sydney, new GeoLocation(151.209444, -33.865));
-    this.put(Place.Alindao, new GeoLocation(5.039914, 12.2464949));
+    this.put(Place.Alindao, new GeoLocation(21.216667, 5.033333));
     this.put(Place.LaPaz, new GeoLocation(-68.1475, -16.494167));
-    this.put(Place.Peking, new GeoLocation(98.4677453, 39.9385466));
+    this.put(Place.Peking, new GeoLocation(116.383333, 39.933333));
     this.put(Place.Denver, new GeoLocation(-104.9825, 39.778889));
     this.put(Place.Kabul, new GeoLocation(69.166667, 34.533333));
-    this.put(Place.Tiksi, new GeoLocation(93.0050991, 70.6211055));
+    this.put(Place.Tiksi, new GeoLocation(128.864833, 71.637444));
     this.put(Place.None, new GeoLocation(0,0));
   }
 };
@@ -162,7 +162,7 @@ void setup() {
   // Serial
   printArray(Serial.list());
   // Open the port you are using at the rate you want:
-  Serial port = new Serial(this, Serial.list()[0], 57600);
+  Serial port = new Serial(this, Serial.list()[1], 57600);
   port.write("led1");
   arduino = new ArduinoController(port);
   
