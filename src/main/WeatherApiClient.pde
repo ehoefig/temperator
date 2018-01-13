@@ -40,6 +40,24 @@ class WeatherApiClient {
     return Float.parseFloat(get(urlString));
   }
 
+  public float getYesterdaysForecastTemperature(Place place, int hour, int minute) throws IOException {
+    ZonedDateTime yesterday = ZonedDateTime.now().minus(1, ChronoUnit.DAYS);
+    ZonedDateTime targetTime = yesterday.with(ChronoField.HOUR_OF_DAY, hour)
+        .with(ChronoField.MINUTE_OF_HOUR, minute)
+        .with(ChronoField.SECOND_OF_MINUTE, 0)
+        .with(ChronoField.MILLI_OF_SECOND, 0)
+        .withZoneSameLocal(timezoneMapping.get(place));
+    String validFrom = URLEncoder.encode(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(targetTime.minus(1, ChronoUnit.HOURS)), "UTF-8");
+    String validUntil = URLEncoder.encode(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(targetTime), "UTF-8");
+    String urlString = String.format(Locale.US, "https://point-forecast.weather.mg/search?fields=airTemperatureInCelsius&locatedAt=%f,%f&validPeriod=PT0S&validFrom=%s&validUntil=%s",
+        geoLocationMapping.get(place).longitude,
+        geoLocationMapping.get(place).latitude,
+        validFrom,
+        validUntil);
+    //println(urlString);
+    return Float.parseFloat(get(urlString));
+  }
+
    private String get(String urlStr) throws IOException {
     URL url = new URL(urlStr);
     HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -99,7 +117,7 @@ class WeatherApiClient {
     Pattern pattern = Pattern.compile("airTemperatureInCelsius\":(-?\\d+.\\d+)");
     Matcher matcher = pattern.matcher(response);
     if (!matcher.find()) {
-      throw new IllegalStateException("No airTemperatureInCelsius found in response: " + response);
+      throw new NoAirTemperatureFoundException("No airTemperatureInCelsius found in response: " + response);
     }
     return matcher.group(1);
   }

@@ -189,6 +189,14 @@ public int getTemperatureFromAPI(Place place) {
     return round(temperature);
   } catch (IOException e) {
     throw new RuntimeException(e);
+  } catch (IllegalStateException e) {
+    println("no observation found. error message: " + e.getMessage());
+    try {
+      float temperature = weatherApiClient.getYesterdaysForecastTemperature(place,hours, minutes);
+      return round(temperature);
+    } catch (IOException natfe) {
+      throw new RuntimeException(e);
+    }
   }
 }
 
