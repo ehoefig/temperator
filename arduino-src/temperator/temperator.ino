@@ -42,6 +42,7 @@ void setup() {
     hsv[i] = rgb2hsv_approximate(CRGB::Black);
     hsv[i].saturation = 255;
   }
+  showClock(CLOCK_OFF);
 }
 
 void showTemperature(float temperatureValue) {
@@ -95,7 +96,7 @@ void showClock(int time) {
 void showIntro() {
   unsigned long start = millis();
   int ticks = 0;
-  while (millis() - start < 4900) {
+  while (millis() - start < 3900) {
     for (int i = 0; i < NUM_LEDS; ++i) {
       hsv[i].value = max(0, hsv[i].value > 0 ? hsv[i].value - 2 : 0);
       hsv2rgb_rainbow(hsv[i], leds[i]);
@@ -122,6 +123,61 @@ void showIntro() {
   }
 }
 
+// < 2000ms
+void showSuccess() {
+  for (int j=0; j<256; ++j) {
+    for (int i = 0; i < NUM_LEDS; ++i) {
+      hsv[i] = rgb2hsv_approximate(CRGB::Green);
+      hsv[i].saturation = 255;
+      hsv[i].value = j;
+      hsv2rgb_rainbow(hsv[i], leds[i]);
+    }
+    FastLED.show();
+    delay(2);
+  }
+  for (int j=255; j>0; --j) {
+    for (int i = 0; i < NUM_LEDS; ++i) {
+      hsv[i] = rgb2hsv_approximate(CRGB::Green);
+      hsv[i].saturation = 255;
+      hsv[i].value = j;
+      hsv2rgb_rainbow(hsv[i], leds[i]);
+    }
+    FastLED.show();
+    delay(2);
+  }
+  for (int i = 0; i < NUM_LEDS; ++i) 
+    leds[i] = CRGB::Black;
+  FastLED.show();
+}
+
+// < 1000ms
+void showFail() {
+  for (int i = 0; i < NUM_LEDS; ++i) 
+    leds[i] = CRGB::Red;
+  FastLED.show();
+  delay(800);
+  for (int i = 0; i < NUM_LEDS; ++i) 
+    leds[i] = CRGB::Black;
+  FastLED.show();
+}
+
+// < 2000ms
+void showOutro() {
+  for (int j=255; j>0; --j) {
+    for (int i = 0; i < NUM_LEDS; ++i) {
+      hsv[i] = rgb2hsv_approximate(CRGB::Blue);
+      hsv[i].saturation = 255;
+      hsv[i].value = j;
+      hsv2rgb_rainbow(hsv[i], leds[i]);
+    }
+    FastLED.show();
+    delay(4);
+    for (int i = 0; i < NUM_LEDS; ++i) 
+      leds[i] = CRGB::Black;
+    FastLED.show();
+  }
+}
+
 bool isTemperatureCommand(CmdMessage cmdMsg) {
   return 't' == cmdMsg.command[0] && 'm' == cmdMsg.command[1] && 'p' == cmdMsg.command[2];
 }
@@ -138,23 +194,31 @@ bool isIntroCommand(CmdMessage cmdMsg) {
   return 'd' == cmdMsg.command[0] && 'o' == cmdMsg.command[1] && 'i' == cmdMsg.command[2];
 }
 
+bool isSuccessCommand(CmdMessage cmdMsg) {
+  return 'w' == cmdMsg.command[0] && 'i' == cmdMsg.command[1] && 'n' == cmdMsg.command[2];
+}
+
+bool isFailCommand(CmdMessage cmdMsg) {
+  return 'f' == cmdMsg.command[0] && 'a' == cmdMsg.command[1] && 'i' == cmdMsg.command[2];
+}
+
+bool isOutroCommand(CmdMessage cmdMsg) {
+  return 'd' == cmdMsg.command[0] && 'o' == cmdMsg.command[1] && 'o' == cmdMsg.command[2];
+}
+
+
 void loop() {
   if (Serial.available() > 0) {
     CmdMessage cmdMsg;
     memset((void*)&cmdMsg, 0, sizeof(cmdMsg));
     Serial.readBytes((uint8_t*)&cmdMsg, sizeof(cmdMsg));
-    if (isTemperatureCommand(cmdMsg)) {
-      showTemperature(getCommandVal(cmdMsg));
-    }
-    if (isCityCommand(cmdMsg)) {
-      showCity(getCommandVal(cmdMsg));
-    }
-    if (isClockCommand(cmdMsg)) {
-      showClock(getCommandVal(cmdMsg));
-    }
-    if (isIntroCommand(cmdMsg)) {
-      showIntro();
-    }
+    if (isTemperatureCommand(cmdMsg)) showTemperature(getCommandVal(cmdMsg));
+    else if (isCityCommand(cmdMsg)) showCity(getCommandVal(cmdMsg));
+    else if (isClockCommand(cmdMsg)) showClock(getCommandVal(cmdMsg));
+    else if (isIntroCommand(cmdMsg)) showIntro();
+    else if (isSuccessCommand(cmdMsg)) showSuccess();
+    else if (isFailCommand(cmdMsg)) showFail();
+    else if (isOutroCommand(cmdMsg)) showOutro();
   }
 
 }

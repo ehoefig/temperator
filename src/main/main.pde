@@ -178,7 +178,7 @@ void setup() {
   textFont(font);
   arduino.lightLed(ledOff);
   arduino.setTemperature((byte)minTemperature);
-  arduino.setTime(88,88);
+  arduino.setTime(99,99);
   weatherApiClient.setup();
 }
 
@@ -217,8 +217,9 @@ public void step() {
     break;
     
   case PlayIntro:
+    arduino.showIntro();
     fanfareSound.play();
-    delay(5500);
+    delay(4700);
     currentState = State.TimeSelection;
     counter = maxTimeCounter;
     break;
@@ -272,10 +273,12 @@ public void step() {
       delay(500);
       if (abs(temperatureFromAPI - temperature) < tolerance) {
         // Success!
+        arduino.showSuccess();
         cheerSound.play();
         delay(2000);
       } else {
         // Failure!
+        arduino.showFail();
         honkSound.play();
         delay(1000);
       }
@@ -287,13 +290,15 @@ public void step() {
   case ShowSolution:
       // Show the solution
       if (counter++ > maxSolutionCounter) {
-        if (tries == 1) currentState = State.PlayOutro;
+        if (tries == 1) {
+          currentState = State.PlayOutro;
+          arduino.setTime(99,99);
+        }
         else {
           --tries;
           currentState = State.TimeSelection;
         }
         arduino.lightLed(ledOff);
-        arduino.setTime(88,88);
         arduino.setTemperature((byte)minTemperature);
         println("tries " + tries);
         currentPlace = Place.None;
@@ -301,6 +306,7 @@ public void step() {
     break;
     
   case PlayOutro:
+      arduino.showOutro();
       whooshSound.play();
       delay(3000);
       currentState = State.Idle;

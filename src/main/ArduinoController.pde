@@ -52,4 +52,17 @@ clk  4byte (hb, hl, mb, ml)
       port.write("dointro");
    }
    
+   public void showSuccess() {
+      port.write("win0000");
+   }
+   
+   public void showFail() {
+      port.write("fail000");
+   }
+   
+   public void showOutro() {
+      port.write("dooutro");
+   }
+   
+   
  }
