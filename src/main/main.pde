@@ -32,7 +32,7 @@ final static int numberOfTries = 3;
 final static int maxTimeCounter = 200;  // How many frames until time is fixed
 final static int maxLocationCounter = 400; // How many frames until location is fixed
 final static int maxSolutionCounter = 300; // How many frames to show solution for
-final static int minTemperature = -23;
+final static int minTemperature = -40;
 final static int maxTemperature = +50;
 final static int maxLocations = Place.class.getEnumConstants().length - 1;
 final static byte ledOff = 100;
@@ -299,7 +299,7 @@ public void step() {
           currentState = State.TimeSelection;
         }
         arduino.lightLed(ledOff);
-        arduino.setTemperature((byte)minTemperature);
+        arduino.setTemperature((byte)0);
         println("tries " + tries);
         currentPlace = Place.None;
       }

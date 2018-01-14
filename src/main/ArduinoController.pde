@@ -41,11 +41,10 @@ clk  4byte (hb, hl, mb, ml)
       hl = (byte)(hours % 10);
       mb = (byte)(minutes / 10);
       ml = (byte)(minutes % 10);
-        
+      String clkstring = String.format("%02d", hours) + String.format("%02d", minutes);
       // Talk to Arduino
       port.write("clk");
-      port.write(String.format("%2d", hours));
-      port.write(String.format("%2d", minutes));
+      port.write(clkstring);
    }
    
    public void showIntro() {

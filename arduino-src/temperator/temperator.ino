@@ -47,11 +47,12 @@ void setup() {
 
 void showTemperature(float temperatureValue) {
   const float maxTempVal = 50;
-  const float minTempVal = -23;
-  const float maxServoVal = 165;
-  const float minServoVal = 5;
+  const float minTempVal = -40;
+  const float maxServoVal = 164;
+  const float minServoVal = 4;
   temperatureValue = constrain(temperatureValue, minTempVal, maxTempVal);
-  int servoValue = round(map(temperatureValue, minTempVal, maxTempVal, maxServoVal, minServoVal));
+  int servoValue = round(map(temperatureValue, minTempVal, maxTempVal, minServoVal, maxServoVal));
+  servoValue = minServoVal - servoValue + maxServoVal; // because of flipped direction
   tempServo.write(servoValue);
 }
 
