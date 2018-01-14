@@ -48,4 +48,8 @@ clk  4byte (hb, hl, mb, ml)
       port.write(String.format("%2d", minutes));
    }
    
+   public void showIntro() {
+      port.write("dointro");
+   }
+   
  }
